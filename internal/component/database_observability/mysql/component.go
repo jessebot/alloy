@@ -211,9 +211,10 @@ func (c *Component) Update(args component.Arguments) error {
 func enableOrDisableCollectors(a Arguments) map[string]bool {
 	// configurable collectors and their default enabled/disabled value
 	collectors := map[string]bool{
-		collector.QueryTablesName: true,
-		collector.SchemaTableName: true,
-		collector.QuerySampleName: false,
+		collector.QueryTablesName:   true,
+		collector.SchemaTableName:   true,
+		collector.QuerySampleName:   false,
+		collector.SetupConsumerName: true,
 	}
 
 	for _, disabled := range a.DisableCollectors {
@@ -309,6 +310,21 @@ func (c *Component) startCollectors() error {
 			return err
 		}
 		c.collectors = append(c.collectors, qsCollector)
+	}
+
+	// TODO: set if condition
+	scCollector, err := collector.NewSetupConsumer(collector.SetupConsumerArguments{
+		DB:       dbConnection,
+		Registry: c.registry,
+		Logger:   c.opts.Logger,
+	})
+	if err != nil {
+		level.Error(c.opts.Logger).Log("msg", "failed to create SetupConsumer collector", "err", err)
+		return err
+	}
+	if err := scCollector.Start(context.Background()); err != nil {
+		level.Error(c.opts.Logger).Log("msg", "failed to start SetupConsumer collector", "err", err)
+		return err
 	}
 
 	// Connection Info collector is always enabled

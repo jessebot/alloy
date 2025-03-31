@@ -401,11 +401,10 @@ func TestQuerySampleSQLDriverErrors(t *testing.T) {
 			}).AddRow(
 				1,
 				2,
-			),
-		)
+			))
 
 		mock.ExpectQuery(selectQuerySamples+endOfTimeline).WithArgs(
-			1e12, // initial timerBookmark
+			1e12,
 			2e12,
 		).RowsWillBeClosed().
 			WillReturnRows(
@@ -422,8 +421,7 @@ func TestQuerySampleSQLDriverErrors(t *testing.T) {
 			}).AddRow(
 				1,
 				2,
-			),
-		)
+			))
 
 		mock.ExpectQuery(selectQuerySamples+endOfTimeline).WithArgs(
 			2e12, // initial timerBookmark
@@ -508,15 +506,24 @@ func TestQuerySampleSQLDriverErrors(t *testing.T) {
 					"1",
 				))
 
-		mock.ExpectQuery(selectQuerySamples).WithArgs(float64(1)).RowsWillBeClosed().
+		mock.ExpectQuery(selectNowAndUptime).WithoutArgs().WillReturnRows(
+			sqlmock.NewRows([]string{
+				"now",
+				"uptime",
+			}).AddRow(
+				1,
+				2,
+			))
+
+		mock.ExpectQuery(selectQuerySamples+endOfTimeline).WithArgs(
+			1e12, // initial timerBookmark
+			2e12,
+		).RowsWillBeClosed().
 			WillReturnRows(
 				sqlmock.NewRows([]string{
-					"now",
-					"uptime",
 					"statements.CURRENT_SCHEMA",
 					"statements.DIGEST",
 					"statements.DIGEST_TEXT",
-					"statements.TIMER_START",
 					"statements.TIMER_END",
 					"statements.TIMER_WAIT",
 					"statements.CPU_TIME",
@@ -527,12 +534,9 @@ func TestQuerySampleSQLDriverErrors(t *testing.T) {
 					"statements.MAX_CONTROLLED_MEMORY",
 					"statements.MAX_TOTAL_MEMORY",
 				}).AddRow(
-					"1",
-					"2",
 					"some_schema",
 					"some_digest",
 					"select * from some_table where id = 1",
-					"50000000",
 					"70000000",
 					"20000000",
 					"10000000",
@@ -543,12 +547,9 @@ func TestQuerySampleSQLDriverErrors(t *testing.T) {
 					"456",
 					"457",
 				).AddRow(
-					"1",
-					"2",
 					"some_schema",
 					"some_digest",
 					"select * from some_table where id = 1",
-					"50000000",
 					"70000000",
 					"20000000",
 					"10000000",
@@ -610,16 +611,38 @@ func TestQuerySampleSQLDriverErrors(t *testing.T) {
 					"1",
 				))
 
-		mock.ExpectQuery(selectQuerySamples).WithArgs(float64(1)).WillReturnError(fmt.Errorf("connection error"))
-		mock.ExpectQuery(selectQuerySamples).WithArgs(float64(1)).RowsWillBeClosed().
+		mock.ExpectQuery(selectNowAndUptime).WithoutArgs().WillReturnRows(
+			sqlmock.NewRows([]string{
+				"now",
+				"uptime",
+			}).AddRow(
+				1,
+				2,
+			))
+
+		mock.ExpectQuery(selectQuerySamples+endOfTimeline).WithArgs(
+			1e12,
+			2e12,
+		).WillReturnError(fmt.Errorf("connection error"))
+
+		mock.ExpectQuery(selectNowAndUptime).WithoutArgs().WillReturnRows(
+			sqlmock.NewRows([]string{
+				"now",
+				"uptime",
+			}).AddRow(
+				1,
+				2,
+			))
+
+		mock.ExpectQuery(selectQuerySamples+endOfTimeline).WithArgs(
+			1e12,
+			2e12,
+		).RowsWillBeClosed().
 			WillReturnRows(
 				sqlmock.NewRows([]string{
-					"now",
-					"uptime",
 					"statements.CURRENT_SCHEMA",
 					"statements.DIGEST",
 					"statements.DIGEST_TEXT",
-					"statements.TIMER_START",
 					"statements.TIMER_END",
 					"statements.TIMER_WAIT",
 					"statements.CPU_TIME",
@@ -630,12 +653,9 @@ func TestQuerySampleSQLDriverErrors(t *testing.T) {
 					"statements.MAX_CONTROLLED_MEMORY",
 					"statements.MAX_TOTAL_MEMORY",
 				}).AddRow(
-					"1",
-					"2",
 					"some_schema",
 					"some_digest",
 					"select * from some_table where id = 1",
-					"50000000",
 					"70000000",
 					"20000000",
 					"10000000",

@@ -12,6 +12,7 @@ import (
 	"github.com/go-kit/log"
 	"github.com/prometheus/common/model"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/goleak"
 
@@ -49,7 +50,7 @@ func TestQuerySample(t *testing.T) {
 				{"job": database_observability.JobName, "op": OP_QUERY_SAMPLE, "instance": "mysql-db"},
 			},
 			logsLines: []string{
-				`schema="some_schema" digest="some_digest" digest_text="select * from some_table where id = :redacted1" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms"`,
+				`schema="some_schema" digest="some_digest" digest_text="select * from some_table where id = :redacted1" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms" time="4000ms"`,
 			},
 		},
 		{
@@ -85,7 +86,7 @@ func TestQuerySample(t *testing.T) {
 				{"job": database_observability.JobName, "op": OP_QUERY_SAMPLE, "instance": "mysql-db"},
 			},
 			logsLines: []string{
-				`schema="some_schema" digest="some_digest" digest_text="select * from some_table where id = :redacted1" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms"`,
+				`schema="some_schema" digest="some_digest" digest_text="select * from some_table where id = :redacted1" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms" time="4000ms"`,
 			},
 		},
 		{
@@ -109,7 +110,7 @@ func TestQuerySample(t *testing.T) {
 				{"job": database_observability.JobName, "op": OP_QUERY_PARSED_TABLE_NAME, "instance": "mysql-db"},
 			},
 			logsLines: []string{
-				`schema="some_schema" digest="some_digest" digest_text="select * from some_table where id = :redacted1" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms"`,
+				`schema="some_schema" digest="some_digest" digest_text="select * from some_table where id = :redacted1" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms" time="4000ms"`,
 			},
 		},
 		{
@@ -151,7 +152,7 @@ func TestQuerySample(t *testing.T) {
 				{"job": database_observability.JobName, "op": OP_QUERY_SAMPLE, "instance": "mysql-db"},
 			},
 			logsLines: []string{
-				`schema="some_schema" digest="some_digest" digest_text="begin" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms"`,
+				`schema="some_schema" digest="some_digest" digest_text="begin" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms" time="4000ms"`,
 			},
 		},
 		{
@@ -187,7 +188,7 @@ func TestQuerySample(t *testing.T) {
 				{"job": database_observability.JobName, "op": OP_QUERY_SAMPLE, "instance": "mysql-db"},
 			},
 			logsLines: []string{
-				`schema="some_schema" digest="some_digest" digest_text="select * from some_table where id = :redacted1" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms"`,
+				`schema="some_schema" digest="some_digest" digest_text="select * from some_table where id = :redacted1" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms" time="4000ms"`,
 			},
 		},
 		{
@@ -224,8 +225,8 @@ func TestQuerySample(t *testing.T) {
 				{"job": database_observability.JobName, "op": OP_QUERY_SAMPLE, "instance": "mysql-db"},
 			},
 			logsLines: []string{
-				`schema="some_schema" digest="some_digest" digest_text="select * from some_table where id = :redacted1" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms"`,
-				`schema="some_other_schema" digest="some_digest" digest_text="select * from some_table where id = :redacted1" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms"`,
+				`schema="some_schema" digest="some_digest" digest_text="select * from some_table where id = :redacted1" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms" time="4000ms"`,
+				`schema="some_other_schema" digest="some_digest" digest_text="select * from some_table where id = :redacted1" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms" time="4000ms"`,
 			},
 		},
 		{
@@ -248,7 +249,7 @@ func TestQuerySample(t *testing.T) {
 				{"job": database_observability.JobName, "op": OP_QUERY_SAMPLE, "instance": "mysql-db"},
 			},
 			logsLines: []string{
-				`schema="some_schema" digest="some_digest" digest_text="select * from (select id, name from employees_us_east union select id, name from employees_us_west) as employees_us union select id, name from employees_emea" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms"`,
+				`schema="some_schema" digest="some_digest" digest_text="select * from (select id, name from employees_us_east union select id, name from employees_us_west) as employees_us union select id, name from employees_emea" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms" time="4000ms"`,
 			},
 		},
 		{
@@ -271,7 +272,7 @@ func TestQuerySample(t *testing.T) {
 				{"job": database_observability.JobName, "op": OP_QUERY_SAMPLE, "instance": "mysql-db"},
 			},
 			logsLines: []string{
-				`schema="some_schema" digest="some_digest" digest_text="show create table" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms"`,
+				`schema="some_schema" digest="some_digest" digest_text="show create table" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms" time="4000ms"`,
 			},
 		},
 	}
@@ -310,14 +311,14 @@ func TestQuerySample(t *testing.T) {
 					"now",
 					"uptime",
 				}).AddRow(
+					5,
 					1,
-					2,
 				),
 			)
 
 			mock.ExpectQuery(selectQuerySamples+endOfTimeline).WithArgs(
 				1e12, // initial timerBookmark
-				2e12,
+				1e12,
 			).RowsWillBeClosed().
 				WillReturnRows(
 					sqlmock.NewRows([]string{
@@ -400,13 +401,13 @@ func TestQuerySampleSQLDriverErrors(t *testing.T) {
 				"now",
 				"uptime",
 			}).AddRow(
+				5,
 				1,
-				2,
 			))
 
 		mock.ExpectQuery(selectQuerySamples+endOfTimeline).WithArgs(
 			1e12,
-			2e12,
+			1e12,
 		).RowsWillBeClosed().
 			WillReturnRows(
 				sqlmock.NewRows([]string{
@@ -420,13 +421,13 @@ func TestQuerySampleSQLDriverErrors(t *testing.T) {
 				"now",
 				"uptime",
 			}).AddRow(
+				5,
 				1,
-				2,
 			))
 
 		mock.ExpectQuery(selectQuerySamples+endOfTimeline).WithArgs(
-			2e12, // initial timerBookmark
-			2e12,
+			1e12,
+			1e12,
 		).RowsWillBeClosed().
 			WillReturnRows(
 				sqlmock.NewRows([]string{
@@ -477,7 +478,7 @@ func TestQuerySampleSQLDriverErrors(t *testing.T) {
 
 		lokiEntries := lokiClient.Received()
 		require.Equal(t, model.LabelSet{"job": database_observability.JobName, "op": OP_QUERY_SAMPLE, "instance": "mysql-db"}, lokiEntries[0].Labels)
-		require.Equal(t, `schema="some_schema" digest="some_digest" digest_text="select * from some_table where id = :redacted1" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms"`, lokiEntries[0].Line)
+		require.Equal(t, `schema="some_schema" digest="some_digest" digest_text="select * from some_table where id = :redacted1" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms" time="4000ms"`, lokiEntries[0].Line)
 	})
 
 	t.Run("result set iteration error", func(t *testing.T) {
@@ -512,12 +513,12 @@ func TestQuerySampleSQLDriverErrors(t *testing.T) {
 				"now",
 				"uptime",
 			}).AddRow(
-				1,
+				5,
 				2,
 			))
 
 		mock.ExpectQuery(selectQuerySamples+endOfTimeline).WithArgs(
-			1e12, // initial timerBookmark
+			1e12,
 			2e12,
 		).RowsWillBeClosed().
 			WillReturnRows(
@@ -582,7 +583,7 @@ func TestQuerySampleSQLDriverErrors(t *testing.T) {
 
 		lokiEntries := lokiClient.Received()
 		require.Equal(t, model.LabelSet{"job": database_observability.JobName, "op": OP_QUERY_SAMPLE, "instance": "mysql-db"}, lokiEntries[0].Labels)
-		require.Equal(t, `schema="some_schema" digest="some_digest" digest_text="select * from some_table where id = :redacted1" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms"`, lokiEntries[0].Line)
+		require.Equal(t, `schema="some_schema" digest="some_digest" digest_text="select * from some_table where id = :redacted1" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms" time="3000ms"`, lokiEntries[0].Line)
 	})
 
 	t.Run("connection error recovery", func(t *testing.T) {
@@ -617,7 +618,7 @@ func TestQuerySampleSQLDriverErrors(t *testing.T) {
 				"now",
 				"uptime",
 			}).AddRow(
-				1,
+				5,
 				2,
 			))
 
@@ -631,7 +632,7 @@ func TestQuerySampleSQLDriverErrors(t *testing.T) {
 				"now",
 				"uptime",
 			}).AddRow(
-				1,
+				5,
 				2,
 			))
 
@@ -688,7 +689,7 @@ func TestQuerySampleSQLDriverErrors(t *testing.T) {
 
 		lokiEntries := lokiClient.Received()
 		require.Equal(t, model.LabelSet{"job": database_observability.JobName, "op": OP_QUERY_SAMPLE, "instance": "mysql-db"}, lokiEntries[0].Labels)
-		require.Equal(t, `schema="some_schema" digest="some_digest" digest_text="select * from some_table where id = :redacted1" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms"`, lokiEntries[0].Line)
+		require.Equal(t, `schema="some_schema" digest="some_digest" digest_text="select * from some_table where id = :redacted1" rows_examined="5" rows_sent="5" rows_affected="0" errors="0" max_controlled_memory="456b" max_total_memory="457b" cpu_time="0.010000ms" elapsed_time="0.020000ms" elapsed_time_ms="0.020000ms" time="3000ms"`, lokiEntries[0].Line)
 	})
 }
 
@@ -745,7 +746,7 @@ func Test_fetchQuerySampleSummary_handles_timer_overflows(t *testing.T) {
 		)
 		mock.ExpectQuery(selectQuerySamples+endOfTimeline).WithArgs(
 			1e12, // initial timerBookmark
-			5e12, // uptime of 5 seconds in picoseconds
+			5e12, // uptime of 5 seconds in picoseconds (modulo 0 overflows)
 		).WillReturnRows(sqlmock.NewRows([]string{
 			"current_schema",
 			"digest",
@@ -803,7 +804,7 @@ func Test_fetchQuerySampleSummary_handles_timer_overflows(t *testing.T) {
 		}, lokiClient.Received()[0].Labels)
 		assert.Equal(t, "schema=\"test_schema\" digest=\"some digest\" digest_text=\"select * from `users`\" "+
 			"rows_examined=\"1000\" rows_sent=\"100\" rows_affected=\"0\" errors=\"0\" max_controlled_memory=\"1048576b\" "+
-			"max_total_memory=\"2097152b\" cpu_time=\"0.000556ms\" elapsed_time=\"2000.000000ms\" elapsed_time_ms=\"2000.000000ms\"",
+			"max_total_memory=\"2097152b\" cpu_time=\"0.000556ms\" elapsed_time=\"2000.000000ms\" elapsed_time_ms=\"2000.000000ms\" time=\"3000ms\"",
 			lokiClient.Received()[0].Line)
 	})
 
@@ -848,250 +849,247 @@ func Test_fetchQuerySampleSummary_handles_timer_overflows(t *testing.T) {
 		assert.Equal(t, 10e12, c.timerBookmark)
 	})
 
-	//		t.Run("overflow just happened, next query reverts back to endOfTimeline clause", func(t *testing.T) {
-	//			// Below is the first query after an overflow just happened. The special beginningAndEndOfTimeline clause is used.
-	//			db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-	//			require.NoError(t, err)
-	//			defer db.Close()
-	//			mock.ExpectQuery(selectNowAndUptime).WithoutArgs().WillReturnRows(
-	//				sqlmock.NewRows([]string{
-	//					"now",
-	//					"uptime",
-	//				}).AddRow(
-	//					picosecondsToSeconds(math.MaxUint64)+15,
-	//					picosecondsToSeconds(math.MaxUint64)+10,
-	//				),
-	//			)
-	//			mock.ExpectQuery(selectQuerySamples+beginningAndEndOfTimeline).WithArgs(
-	//				3e12,
-	//				10e12,
-	//			).WillReturnRows(sqlmock.NewRows([]string{
-	//				"timer_end",
-	//				"event_id",
-	//				"thread_id",
-	//				"current_schema",
-	//				"digest_text",
-	//				"digest",
-	//				"timer_wait",
-	//				"cpu_time",
-	//				"rows_examined",
-	//				"rows_sent",
-	//				"rows_affected",
-	//				"max_controlled_memory",
-	//				"max_total_memory",
-	//				"errors",
-	//			}))
-	//			c := &QuerySample{
-	//				sqlParser:        &parser.TiDBSqlParser{},
-	//				dbConnection:   db,
-	//				timerBookmark: 3e12,
-	//			}
-	//			_, err = c.fetchQuerySamples(t.Context())
-	//			require.NoError(t, err)
-	//
-	//			// Below, we want to assert that the subsequent query reverts back to the endOfTimeline clause.
-	//			mock.ExpectQuery(selectNowAndUptime).WithoutArgs().WillReturnRows(
-	//				sqlmock.NewRows([]string{
-	//					"now",
-	//					"uptime",
-	//				}).AddRow(
-	//					picosecondsToSeconds(math.MaxUint64)+18,
-	//					picosecondsToSeconds(math.MaxUint64)+13,
-	//				),
-	//			)
-	//			mock.ExpectQuery(selectQuerySamples+endOfTimeline).WithArgs( // asserts revert to endOfTimeline clause
-	//				10e12, // asserts timerBookmark has been updated to the previous uptimeLimit
-	//				13e12, // asserts uptimeLimit is now updated to the current uptime "modulo" overflows
-	//			).WillReturnRows(sqlmock.NewRows([]string{
-	//				"timer_end",
-	//				"event_id",
-	//				"thread_id",
-	//				"current_schema",
-	//				"digest_text",
-	//				"digest",
-	//				"timer_wait",
-	//				"cpu_time",
-	//				"rows_examined",
-	//				"rows_sent",
-	//				"rows_affected",
-	//				"max_controlled_memory",
-	//				"max_total_memory",
-	//				"errors",
-	//			}))
-	//			_, err = c.fetchQuerySamples(t.Context())
-	//			require.NoError(t, err)
-	//
-	//			assert.Equal(t, picosecondsToSeconds(math.MaxUint64)+13, c.lastUptime)
-	//			assert.Equal(t, 13e12, c.timerBookmark)
-	//		})
-	//
-	//		t.Run("server restarts, timer bookmark is reset", func(t *testing.T) {
-	//			db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-	//			require.NoError(t, err)
-	//			defer db.Close()
-	//			mock.ExpectQuery(selectNowAndUptime).WithoutArgs().WillReturnRows(
-	//				sqlmock.NewRows([]string{
-	//					"now",
-	//					"uptime",
-	//				}).AddRow(
-	//					picosecondsToSeconds(math.MaxUint64)+15,
-	//					10,
-	//				),
-	//			)
-	//			mock.ExpectQuery(selectQuerySamples+endOfTimeline).WithArgs(
-	//				float64(0),
-	//				10e12,
-	//			).WillReturnRows(sqlmock.NewRows([]string{
-	//				"timer_end",
-	//				"event_id",
-	//				"thread_id",
-	//				"current_schema",
-	//				"digest_text",
-	//				"digest",
-	//				"timer_wait",
-	//				"cpu_time",
-	//				"rows_examined",
-	//				"rows_sent",
-	//				"rows_affected",
-	//				"max_controlled_memory",
-	//				"max_total_memory",
-	//				"errors",
-	//			}))
-	//			c := &QuerySample{
-	//				dbConnection:   db,
-	//				timerBookmark: 3e12,
-	//				lastUptime:    11,
-	//			}
-	//			_, err = c.fetchQuerySamples(t.Context())
-	//			require.NoError(t, err)
-	//
-	//			assert.EqualValues(t, 10, c.lastUptime)
-	//			assert.Equal(t, 10e12, c.timerBookmark)
-	//		})
-	//
-	//		t.Run("bookmarks are not updated if selectNowAndUptime query fails", func(t *testing.T) {
-	//			// Please note that if the loop breaks due to a rows scanning error, the bookmarks will have already been updated.
-	//			// This means that the next iteration will use the updated bookmarks and some samples may be skipped.
-	//			// This is a known limitation and is a best effort approach.
-	//
-	//			db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-	//			require.NoError(t, err)
-	//			defer db.Close()
-	//			mock.ExpectQuery(selectNowAndUptime).WithoutArgs().WillReturnError(fmt.Errorf("some error"))
-	//			mock.ExpectQuery(selectQuerySamples+endOfTimeline).WithArgs(
-	//				float64(0),
-	//				10e12,
-	//			).WillReturnRows(sqlmock.NewRows([]string{
-	//				"timer_end",
-	//				"event_id",
-	//				"thread_id",
-	//				"current_schema",
-	//				"digest_text",
-	//				"digest",
-	//				"timer_wait",
-	//				"cpu_time",
-	//				"rows_examined",
-	//				"rows_sent",
-	//				"rows_affected",
-	//				"max_controlled_memory",
-	//				"max_total_memory",
-	//				"errors",
-	//			}))
-	//			c := &QuerySample{
-	//				dbConnection:   db,
-	//				timerBookmark: 3e12,
-	//				lastUptime:    100,
-	//			}
-	//			_, err = c.fetchQuerySamples(t.Context())
-	//
-	//			require.Error(t, err)
-	//			assert.EqualValues(t, 100, c.lastUptime)
-	//			assert.Equal(t, 3e12, c.timerBookmark)
-	//		})
-	//
-	//		t.Run("returns error when selectNowAndUptime query fails", func(t *testing.T) {
-	//			db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-	//			require.NoError(t, err)
-	//			defer db.Close()
-	//
-	//			mock.ExpectQuery(selectNowAndUptime).WithoutArgs().WillReturnError(fmt.Errorf("some error"))
-	//
-	//			c := &QuerySample{dbConnection: db}
-	//
-	//			_, err = c.fetchQuerySamples(t.Context())
-	//
-	//			assert.Error(t, err)
-	//			assert.Equal(t, "failed to scan now and uptime info: some error", err.Error())
-	//		})
-	//
-	//		t.Run("returns error when selectQuerySamples query fails", func(t *testing.T) {
-	//			db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-	//			require.NoError(t, err)
-	//			defer db.Close()
-	//			mock.ExpectQuery(selectNowAndUptime).WithoutArgs().WillReturnRows(sqlmock.NewRows([]string{"now", "uptime"}).AddRow(picosecondsToSeconds(math.MaxUint64)+15, 10))
-	//
-	//			mock.ExpectQuery(selectQuerySamples+endOfTimeline).WithArgs(3e12, 10e12).WillReturnError(fmt.Errorf("some error"))
-	//
-	//			c := &QuerySample{
-	//				dbConnection:   db,
-	//				timerBookmark: 3e12,
-	//			}
-	//			_, err = c.fetchQuerySamples(t.Context())
-	//
-	//			assert.Error(t, err)
-	//			assert.Equal(t, "some error", err.Error())
-	//		})
-	//
-	//		t.Run("returns error when parser.Redact fails", func(t *testing.T) {
-	//			db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
-	//			require.NoError(t, err)
-	//			defer db.Close()
-	//			mock.ExpectQuery(selectNowAndUptime).WithoutArgs().WillReturnRows(sqlmock.NewRows([]string{"now", "uptime"}).AddRow(picosecondsToSeconds(math.MaxUint64)+15, 10))
-	//			mock.ExpectQuery(selectQuerySamples+endOfTimeline).WithArgs(
-	//				2e12,
-	//				10e12,
-	//			).WillReturnRows(sqlmock.NewRows([]string{
-	//				"timer_end",
-	//				"event_id",
-	//				"thread_id",
-	//				"current_schema",
-	//				"digest_text",
-	//				"digest",
-	//				"timer_wait",
-	//				"cpu_time",
-	//				"rows_examined",
-	//				"rows_sent",
-	//				"rows_affected",
-	//				"max_controlled_memory",
-	//				"max_total_memory",
-	//				"errors",
-	//			}).
-	//				AddRow(
-	//					2e12,
-	//					123,
-	//					456,
-	//					"test_schema",
-	//					"SELECT * FROM users",
-	//					"some digest",
-	//					2e12,
-	//					11,
-	//					1000,
-	//					100,
-	//					0,
-	//					1048576,
-	//					2097152,
-	//					0,
-	//				),
-	//			)
-	//			mockParser := &mockParser{}
-	//			c := &QuerySample{dbConnection: db, sqlParser: mockParser, timerBookmark: 2e12}
-	//			mockParser.On("Redact", "SELECT * FROM users").Return("", fmt.Errorf("some error"))
-	//
-	//			err := c.fetchQuerySamples(t.Context())
-	//
-	//			assert.NoError(t, err)
-	//			assert.Equal(t, []log{{msg: "failed to redact sql", args: []interface{}{"err", "some error", "DigestText", "SELECT * FROM users"}}}, logs)
-	//		})
+	t.Run("overflow just happened, next query reverts back to endOfTimeline clause", func(t *testing.T) {
+		// Below is the first query after an overflow just happened. The special beginningAndEndOfTimeline clause is used.
+		db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+		require.NoError(t, err)
+		defer db.Close()
+		mock.ExpectQuery(selectNowAndUptime).WithoutArgs().WillReturnRows(
+			sqlmock.NewRows([]string{
+				"now",
+				"uptime",
+			}).AddRow(
+				picosecondsToSeconds(math.MaxUint64)+15,
+				picosecondsToSeconds(math.MaxUint64)+10,
+			),
+		)
+		mock.ExpectQuery(selectQuerySamples+beginningAndEndOfTimeline).WithArgs(
+			3e12,
+			10e12,
+		).WillReturnRows(sqlmock.NewRows([]string{
+			"timer_end",
+			"event_id",
+			"thread_id",
+			"current_schema",
+			"digest_text",
+			"digest",
+			"timer_wait",
+			"cpu_time",
+			"rows_examined",
+			"rows_sent",
+			"rows_affected",
+			"max_controlled_memory",
+			"max_total_memory",
+			"errors",
+		}))
+		c := &QuerySample{
+			sqlParser:     &parser.TiDBSqlParser{},
+			dbConnection:  db,
+			timerBookmark: 3e12,
+		}
+		require.NoError(t, c.fetchQuerySamples(t.Context()))
+
+		// Below, we want to assert that the subsequent query reverts back to the endOfTimeline clause.
+		mock.ExpectQuery(selectNowAndUptime).WithoutArgs().WillReturnRows(
+			sqlmock.NewRows([]string{
+				"now",
+				"uptime",
+			}).AddRow(
+				picosecondsToSeconds(math.MaxUint64)+18,
+				picosecondsToSeconds(math.MaxUint64)+13,
+			),
+		)
+		mock.ExpectQuery(selectQuerySamples+endOfTimeline).WithArgs( // asserts revert to endOfTimeline clause
+			10e12, // asserts timerBookmark has been updated to the previous uptimeLimit
+			13e12, // asserts uptimeLimit is now updated to the current uptime "modulo" overflows
+		).WillReturnRows(sqlmock.NewRows([]string{
+			"timer_end",
+			"event_id",
+			"thread_id",
+			"current_schema",
+			"digest_text",
+			"digest",
+			"timer_wait",
+			"cpu_time",
+			"rows_examined",
+			"rows_sent",
+			"rows_affected",
+			"max_controlled_memory",
+			"max_total_memory",
+			"errors",
+		}))
+		require.NoError(t, c.fetchQuerySamples(t.Context()))
+
+		assert.Equal(t, picosecondsToSeconds(math.MaxUint64)+13, c.lastUptime)
+		assert.Equal(t, 13e12, c.timerBookmark)
+	})
+
+	t.Run("server restarts, timer bookmark is reset", func(t *testing.T) {
+		db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+		require.NoError(t, err)
+		defer db.Close()
+		mock.ExpectQuery(selectNowAndUptime).WithoutArgs().WillReturnRows(
+			sqlmock.NewRows([]string{
+				"now",
+				"uptime",
+			}).AddRow(
+				picosecondsToSeconds(math.MaxUint64)+15,
+				10,
+			),
+		)
+		mock.ExpectQuery(selectQuerySamples+endOfTimeline).WithArgs(
+			float64(0),
+			10e12,
+		).WillReturnRows(sqlmock.NewRows([]string{
+			"timer_end",
+			"event_id",
+			"thread_id",
+			"current_schema",
+			"digest_text",
+			"digest",
+			"timer_wait",
+			"cpu_time",
+			"rows_examined",
+			"rows_sent",
+			"rows_affected",
+			"max_controlled_memory",
+			"max_total_memory",
+			"errors",
+		}))
+		c := &QuerySample{
+			dbConnection:  db,
+			timerBookmark: 3e12,
+			lastUptime:    11,
+		}
+		require.NoError(t, c.fetchQuerySamples(t.Context()))
+
+		assert.EqualValues(t, 10, c.lastUptime)
+		assert.Equal(t, 10e12, c.timerBookmark)
+	})
+
+	t.Run("bookmarks are not updated if selectNowAndUptime query fails", func(t *testing.T) {
+		// Please note that if the loop breaks due to a rows scanning error, the bookmarks will have already been updated.
+		// This means that the next iteration will use the updated bookmarks and some samples may be skipped.
+		// This is a known limitation and is a best effort approach.
+
+		db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+		require.NoError(t, err)
+		defer db.Close()
+		mock.ExpectQuery(selectNowAndUptime).WithoutArgs().WillReturnError(fmt.Errorf("some error"))
+		mock.ExpectQuery(selectQuerySamples+endOfTimeline).WithArgs(
+			float64(0),
+			10e12,
+		).WillReturnRows(sqlmock.NewRows([]string{
+			"timer_end",
+			"event_id",
+			"thread_id",
+			"current_schema",
+			"digest_text",
+			"digest",
+			"timer_wait",
+			"cpu_time",
+			"rows_examined",
+			"rows_sent",
+			"rows_affected",
+			"max_controlled_memory",
+			"max_total_memory",
+			"errors",
+		}))
+		c := &QuerySample{
+			dbConnection:  db,
+			timerBookmark: 3e12,
+			lastUptime:    100,
+		}
+
+		require.Error(t, c.fetchQuerySamples(t.Context()))
+
+		assert.EqualValues(t, 100, c.lastUptime)
+		assert.Equal(t, 3e12, c.timerBookmark)
+	})
+
+	t.Run("returns error when selectNowAndUptime query fails", func(t *testing.T) {
+		db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+		require.NoError(t, err)
+		defer db.Close()
+
+		mock.ExpectQuery(selectNowAndUptime).WithoutArgs().WillReturnError(fmt.Errorf("some error"))
+
+		c := &QuerySample{dbConnection: db}
+
+		err = c.fetchQuerySamples(t.Context())
+
+		assert.Error(t, err)
+		assert.Equal(t, "failed to scan now and uptime info: some error", err.Error())
+	})
+
+	t.Run("returns error when selectQuerySamples query fails", func(t *testing.T) {
+		db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+		require.NoError(t, err)
+		defer db.Close()
+		mock.ExpectQuery(selectNowAndUptime).WithoutArgs().WillReturnRows(sqlmock.NewRows([]string{"now", "uptime"}).AddRow(picosecondsToSeconds(math.MaxUint64)+15, 10))
+
+		mock.ExpectQuery(selectQuerySamples+endOfTimeline).WithArgs(3e12, 10e12).WillReturnError(fmt.Errorf("some error"))
+
+		c := &QuerySample{
+			dbConnection:  db,
+			timerBookmark: 3e12,
+		}
+		err = c.fetchQuerySamples(t.Context())
+
+		assert.Error(t, err)
+		assert.Equal(t, "failed to fetch query samples: some error", err.Error())
+	})
+
+	t.Run("returns error when parser.Redact fails", func(t *testing.T) {
+		db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+		require.NoError(t, err)
+		defer db.Close()
+		mock.ExpectQuery(selectNowAndUptime).WithoutArgs().WillReturnRows(sqlmock.NewRows([]string{"now", "uptime"}).AddRow(picosecondsToSeconds(math.MaxUint64)+15, 10))
+		mock.ExpectQuery(selectQuerySamples+endOfTimeline).WithArgs(
+			2e12,
+			10e12,
+		).WillReturnRows(sqlmock.NewRows([]string{
+			"timer_end",
+			"event_id",
+			"thread_id",
+			"current_schema",
+			"digest_text",
+			"digest",
+			"timer_wait",
+			"cpu_time",
+			"rows_examined",
+			"rows_sent",
+			"rows_affected",
+			"max_controlled_memory",
+			"max_total_memory",
+			"errors",
+		}).
+			AddRow(
+				2e12,
+				123,
+				456,
+				"test_schema",
+				"SELECT * FROM users",
+				"some digest",
+				2e12,
+				11,
+				1000,
+				100,
+				0,
+				1048576,
+				2097152,
+				0,
+			),
+		)
+		mockParser := &mockParser{}
+		c := &QuerySample{dbConnection: db, sqlParser: mockParser, timerBookmark: 2e12, logger: log.NewLogfmtLogger(os.Stderr)}
+		mockParser.On("Redact", "SELECT * FROM users").Return("", fmt.Errorf("some error"))
+
+		err = c.fetchQuerySamples(t.Context())
+
+		assert.NoError(t, err)
+		//assert.Equal(t, []log{{msg: "failed to redact sql", args: []interface{}{"err", "some error", "DigestText", "SELECT * FROM users"}}}, logs)
+	})
 }
 
 func Test_calculateTimestamp(t *testing.T) {
@@ -1178,37 +1176,31 @@ func TestQuerySampleSummary_calculateTimerClauseAndLimit(t *testing.T) {
 	}
 }
 
-//
-//type mockParser struct {
-//	mock.Mock
-//}
-//
-//func (m *mockParser) Parse(sql string) (any, error) {
-//	args := m.Called(sql)
-//	return args.Get(0), args.Error(1)
-//}
-//
-//func (m *mockParser) Redact(sql string) (string, error) {
-//	args := m.Called(sql)
-//	return args.String(0), args.Error(1)
-//}
-//
-//func (m *mockParser) StmtType(stmt any) parser.StatementType {
-//	args := m.Called(stmt)
-//	return args.Get(0).(parser.StatementType)
-//}
-//
-//func (m *mockParser) ParseTableName(t any) string {
-//	args := m.Called(t)
-//	return args.String(0)
-//}
-//
-//func (m *mockParser) ExtractTableNames(logger slog.Logger, digest string, stmt any) []string {
-//	args := m.Called(logger, digest, stmt)
-//	return args.Get(0).([]string)
-//}
-//
-//func (m *mockParser) SplitMarginComments(sql string) (string, parser.Comments) {
-//	args := m.Called(sql)
-//	return args.String(0), args.Get(1).(parser.Comments)
-//}
+type mockParser struct {
+	mock.Mock
+}
+
+func (m *mockParser) Parse(sql string) (any, error) {
+	args := m.Called(sql)
+	return args.Get(0), args.Error(1)
+}
+
+func (m *mockParser) Redact(sql string) (string, error) {
+	args := m.Called(sql)
+	return args.String(0), args.Error(1)
+}
+
+func (m *mockParser) StmtType(stmt any) parser.StatementType {
+	args := m.Called(stmt)
+	return args.Get(0).(parser.StatementType)
+}
+
+func (m *mockParser) ParseTableName(t any) string {
+	args := m.Called(t)
+	return args.String(0)
+}
+
+func (m *mockParser) ExtractTableNames(logger log.Logger, digest string, stmt any) []string {
+	args := m.Called(logger, digest, stmt)
+	return args.Get(0).([]string)
+}

@@ -10,6 +10,9 @@ internal API changes are not present.
 Main (unreleased)
 -----------------
 
+v1.8.0-rc.0
+-----------------
+
 ### Breaking changes
 
 - Removed `open_port` and `executable_name` from top level configuration of Beyla component. Removed `enabled` argument from `network` block. (@marctc)
@@ -24,6 +27,8 @@ Main (unreleased)
   - The default value of `metrics_flush_interval` in `otelcol.connector.servicegraph` was changed from `0s` to `60s`.
   - `s3_partition` in `otelcol.exporter.awss3` was replaced by `s3_partition_format`.
 
+- (_Experimental_) `prometheus.write.queue` metric names changed to align better with prometheus standards. (@mattdurham)
+
 ### Features
 
 - Add `otelcol.receiver.awscloudwatch` component to receive logs from AWS CloudWatch and forward them to other `otelcol.*` components. (@wildum)
@@ -31,6 +36,10 @@ Main (unreleased)
 - Add string concatenation for secrets type (@ravishankar15)
 - Add support for environment variables to OpenTelemetry Collector config. (@jharvey10)
 - Replace graph in Alloy UI with a new version that supports modules and data flow visualization. (@wildum)
+- Added `--cluster.wait-for-size` and `--cluster.wait-timeout` flags which allow to specify the minimum cluster size
+  required before components that use clustering begin processing traffic to ensure adequate cluster capacity is
+  available. (@thampiotr)
+- Add `trace_printer` to `beyla.ebpf` component to print trace information in a specific format. (@marctc)
 
 ### Enhancements
 
@@ -85,6 +94,8 @@ Main (unreleased)
 
 - Add error body propagation in `pyroscope.write`, for `/ingest` calls. (@simonswine)
 
+- Add `tenant` label to remaining `loki_write_.+` metrics (@towolf)
+
 ### Bugfixes
 
 - Fix deadlocks in `loki.source.file` when tailing fails (@mblaschke)
@@ -93,6 +104,8 @@ Main (unreleased)
 - Fixed an issue in the `mimir.rules.kubernetes` component that would keep the component as unhealthy even when it managed to start after temporary errors (@nicolasvan)
 
 - Allow kafka exporter to attempt to connect even if TLS enabled but cert & key are not specified (@dehaansa)
+
+- Fixed bug where all resources were not being collected from `prometheus.exporter.azure` when using `regions` (@kgeckhart)
 
 ### Other changes
 
@@ -107,7 +120,11 @@ Main (unreleased)
   - `otelcol.receiver.kafka` has a new `error_backoff` block to configure how failed requests are retried.
   - `otelcol.receiver.vcenter` has three new metrics `vcenter.vm.cpu.time`, `vcenter.vm.network.broadcast.packet.rate` and `vcenter.vm.network.multicast.packet.rate`.
   - `otelcol.exporter.awss3` has two new arguments `acl` and `storage_class`.
+  - `otelcol.auth.headers` headers can now be populated using Authentication metadata using from_attribute
 
+- Change the stability of the `beyla.ebpf` component from "public preview" to "generally available". (@marctc)
+
+- The ingest API of `pyrscope.receive_http` no longer forwards all received headers, instead only passes through the `Content-Type` header. 
 
 v1.7.5
 -----------------

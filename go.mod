@@ -75,7 +75,7 @@ require (
 	github.com/grafana/snowflake-prometheus-exporter v0.0.0-20240813124544-9995e8354548
 	github.com/grafana/tail v0.0.0-20230510142333-77b18831edf0
 	github.com/grafana/vmware_exporter v0.0.5-beta.0.20250218170317-73398ba08329
-	github.com/grafana/walqueue v0.0.0-20250320164132-8157339be76c
+	github.com/grafana/walqueue v0.0.0-20250402195023-cd132d6ff0bc
 	github.com/hashicorp/consul/api v1.31.2
 	github.com/hashicorp/go-discover v0.0.0-20230724184603-e89ebd1b2f65
 	github.com/hashicorp/go-multierror v1.1.1
@@ -926,7 +926,7 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.5.0 // indirect
 )
 
-require github.com/grafana/beyla/v2 v2.1.0-alloy
+require github.com/grafana/beyla/v2 v2.1.0-alloy-1
 
 // NOTE: replace directives below must always be *temporary*.
 //
